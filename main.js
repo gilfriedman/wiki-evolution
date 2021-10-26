@@ -1,6 +1,9 @@
-const input = prompt();
 
-fetch(`https://en.wikipedia.org/w/api.php?&origin=*&action=opensearch&search=${input}&limit=500`)
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+const input = urlParams.get('input')
+
+fetch(`https://en.wikipedia.org/w/api.php?&origin=*&action=opensearch&search=${input || prompt()}&limit=500`)
     .then(resp => resp.json())
     .then(async function (data) {
         document.write("<table><tr><td>name</td><td>url</td><td>he name</td></tr>");
