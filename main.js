@@ -1,53 +1,70 @@
-const queryString = window.location.search;
-const urlParams = new URLSearchParams(queryString);
-const input = urlParams.get('input');
-
-// getSubcatsByCatAndLevel("Category:Animals", 2);
-
-fetch(`https://en.wikipedia.org/w/api.php?action=query&origin=*&list=categorymembers&cmtitle=Category:${input}&format=json&cmlimit=500`)
-    .then(resp => resp.json())
-    .then(async function (data) {
-        debugger
-        document.write("<table><tr><td>name</td><td>url</td><td>he name</td></tr>");
-
-        const urls = data[1].map(title => `https://en.wikipedia.org/w/api.php?origin=*&action=query&titles=${title}&prop=langlinks&format=json&lllang=he&lllimit=500`);
-        const responses = await Promise.all(urls.map(async url => {
-            const resp = await fetch(url);
-            return resp.json();
-        }));
-        const langLinks = responses.map(response => response.query.pages[Object.keys(response.query.pages)[0]].langlinks);
-        const heNames = langLinks.map(langLink => langLink && langLink[0][Object.keys(langLink[0])[1]]);
-
-        for (let key in data[1]) {
-            document.write(`<tr>
-        <td>${data[1][key]}</td>
-        <td>${data[3][key]}</td>`
-                + (heNames[key] ? `<td><a href="https://he.wikipedia.org/wiki/${heNames[key]}">${heNames[key]}</a></td>` : "<td></td>")
-                + `</tr>`);
-        }
+// const queryString = window.location.search;
+// const urlParams = new URLSearchParams(queryString);
+// const input = urlParams.get('input');
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-
-async function getSubcatsByCatAndLevel(catName, level) {
-    // let subcats = [];
-    let resp = await fetch(`https://en.wikipedia.org/w/api.php?action=query&origin=*&list=categorymembers&cmtitle=${catName}&cmtype=subcat&format=json&cmlimit=500`);
-    let json = await resp.json();
-    debugger
-    let subcats = json.query.categorymembers.map(cat => cat.title)
-    if (level > 0){
-        level--;
-        subcats.forEach(async subcat => {
-            let results = await getSubcatsByCatAndLevel(subcat, level);
-            subcats = [...subcats, ...results];
-        });
-    }
-    return subcats;
+};
+const BASE_URL = "https://en.wikipedia.org/w/api.php";
+let input = "Category:Animals";
+(() => __awaiter(this, void 0, void 0, function* () {
+    const hi = yield getSubcatsByCatAndLevel(input, 1);
+    debugger;
+    console.log(hi);
+    const set = new Set(hi.map(x => x.title));
+    console.log(set);
+}))();
+function getSubcatsByCatAndLevel(catName, level) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log(`catName: ${catName}, level: ${level}`);
+        let subcats = yield getAllSubcats(catName);
+        if (level > 0) {
+            level--;
+            debugger;
+            for (let subcat of subcats) {
+                let results = yield getSubcatsByCatAndLevel(subcat.title, level);
+                subcats = [...subcats, ...results];
+            }
+        }
+        return subcats;
+    });
 }
-
-async function getAllSubcats(catName){
-    let resp = await fetch(`https://en.wikipedia.org/w/api.php?action=query&origin=*&list=categorymembers&cmtitle=${catName}&cmtype=subcat&format=json&cmlimit=500`);
-    let json = await resp.json();
-    if (json.continue){
-
-    }
-    return 
+function getAllSubcats(catName) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const params = {
+            action: "query",
+            list: "categorymembers",
+            cmlimit: "500",
+            cmtitle: catName,
+            origin: "*",
+            cmtype: "subcat",
+            format: "json"
+        };
+        return yield get(params);
+    });
 }
+function get(params) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const result = [];
+        const queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
+        const url = BASE_URL + "?" + queryString;
+        const resp = yield fetch(url);
+        const json = yield resp.json();
+        result.push(...json.query[params.list]);
+        if (json.continue) {
+            const continueKey = Object.keys(json.continue).find(key => key != "continue");
+            const newParams = Object.assign({}, params);
+            newParams[continueKey] = json.continue[continueKey];
+            debugger;
+            const continueResult = yield get(newParams);
+            result.push(...continueResult);
+        }
+        return result;
+    });
+}
+//# sourceMappingURL=main.js.map
