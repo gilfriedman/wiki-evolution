@@ -4,7 +4,10 @@
 
 const BASE_URL = "https://en.wikipedia.org/w/api.php";
 
-let input = "Category:Animals";
+// let input = "Category:Animals";
+let input = "Category:Long-distance_running";
+let word = "stor";
+let otherLang = "he";
 
 /* MAIN */
 
@@ -29,9 +32,17 @@ let input = "Category:Animals";
     console.log(sorted);
     /* END getAllPagesInCat */
 
-    const pagesHaveEvolutionSection = getPagesHaveEvolutionSection(sorted);
+    const pagesHaveEvolutionSection = await getPagesHaveEvolutionSection(sorted);
     console.log(pagesHaveEvolutionSection);
 
+    const titlesInOtherLang = [];
+    for await (const page of pagesHaveEvolutionSection) {
+        debugger
+        let otherLAngTitle = await getTitleInOtherLanguage(page, otherLang);
+        otherLAngTitle && titlesInOtherLang.push(otherLAngTitle);
+    }
+
+    console.log(titlesInOtherLang)
 })();
 
 /* API */
@@ -41,7 +52,9 @@ async function getPagesHaveEvolutionSection(titles) {
         const content = await getContentOfPage(title);
         // const content = (<any>contentObj).query.pages[0].revisions[0].slots.main.content;
         debugger
-        if (content?.search("==Evo") > -1) {
+        const regex = new RegExp("==(.{0,30}" + word + ".{0,30})==", 'gi');
+        if (content && content.match(regex) != null) {
+            debugger
             pagesHaveEvolutionSection.push(title)
         }
     }
@@ -61,6 +74,15 @@ async function getSubcatsByCatAndLevel(catName, level) {
 }
 
 /* LOW LEVEL (using get) */
+
+async function getTitleInOtherLanguage(title: string, lang: string): Promise<string> {
+    const url = `https://en.wikipedia.org/w/api.php?origin=*&action=query&titles=${title}&prop=langlinks&format=json&lllang=${lang}&lllimit=500`;
+    const response = await fetch(url);
+    const json = await response.json();
+    const langLinks = (<any>json).query.pages[Object.keys((<any>json).query.pages)[0]].langlinks;
+    const targetTitle: string = langLinks && langLinks[0][Object.keys(langLinks[0])[1]];
+    return targetTitle;
+}
 
 async function getContentOfPage(title) {
     const params: IParams = <IRVParams>{
