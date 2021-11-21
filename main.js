@@ -48,6 +48,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __asyncValues = (this && this.__asyncValues) || function (o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+};
 var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
         if (ar || !(i in from)) {
@@ -61,18 +68,19 @@ var _this = this;
 var BASE_URL = "https://en.wikipedia.org/w/api.php";
 // let input = "Category:Animals";
 var input = "Category:Animals";
-var depth = 1;
+var depth = 0;
 var word = "evolu";
 var otherLang = "he";
 /* MAIN */
 (function () { return __awaiter(_this, void 0, void 0, function () {
-    var hi, cats, articles, pagesInCatsPromises, articlesSet, sorted, pagesHaveEvolutionSection, titlesInOtherLang, titleInOtherLanguagePromises;
+    var hi, cats, articles, pagesInCatsPromises, articlesSet, sorted, pagesHaveEvolutionSection, titlesInOtherLang, pagesHaveEvolutionSection_1, pagesHaveEvolutionSection_1_1, page, otherLAngTitle, e_1_1;
     var _this = this;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var e_1, _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0: return [4 /*yield*/, getSubcatsByCatAndLevel(input, depth)];
             case 1:
-                hi = _a.sent();
+                hi = _b.sent();
                 console.log(hi);
                 cats = new Set(hi.map(function (x) { return x.title; }));
                 console.log(cats);
@@ -88,37 +96,54 @@ var otherLang = "he";
                 }); }); });
                 return [4 /*yield*/, Promise.all(pagesInCatsPromises)];
             case 2:
-                _a.sent();
+                _b.sent();
                 console.log(articles);
                 articlesSet = new Set(articles.map(function (x) { return x.title; }));
                 sorted = Array.from(articlesSet).sort();
                 console.log(sorted);
                 return [4 /*yield*/, getPagesHaveEvolutionSection(sorted)];
             case 3:
-                pagesHaveEvolutionSection = _a.sent();
+                pagesHaveEvolutionSection = _b.sent();
                 console.log(pagesHaveEvolutionSection);
                 titlesInOtherLang = [];
-                titleInOtherLanguagePromises = pagesHaveEvolutionSection.map(function (page) { return __awaiter(_this, void 0, void 0, function () {
-                    var otherLAngTitle;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4 /*yield*/, getTitleInOtherLanguage(page, otherLang)];
-                            case 1:
-                                otherLAngTitle = _a.sent();
-                                otherLAngTitle && titlesInOtherLang.push(otherLAngTitle);
-                                return [2 /*return*/];
-                        }
-                    });
-                }); });
-                return [4 /*yield*/, Promise.all(titleInOtherLanguagePromises)];
+                _b.label = 4;
             case 4:
-                _a.sent();
-                // for await (const page of pagesHaveEvolutionSection) {
-                //     debugger
-                //     let otherLAngTitle = await getTitleInOtherLanguage(page, otherLang);
-                //     otherLAngTitle && titlesInOtherLang.push(otherLAngTitle);
-                // }
+                _b.trys.push([4, 10, 11, 16]);
+                pagesHaveEvolutionSection_1 = __asyncValues(pagesHaveEvolutionSection);
+                _b.label = 5;
+            case 5: return [4 /*yield*/, pagesHaveEvolutionSection_1.next()];
+            case 6:
+                if (!(pagesHaveEvolutionSection_1_1 = _b.sent(), !pagesHaveEvolutionSection_1_1.done)) return [3 /*break*/, 9];
+                page = pagesHaveEvolutionSection_1_1.value;
+                debugger;
+                return [4 /*yield*/, getTitleInOtherLanguage(page, otherLang)];
+            case 7:
+                otherLAngTitle = _b.sent();
+                titlesInOtherLang.push([page, otherLAngTitle]);
+                _b.label = 8;
+            case 8: return [3 /*break*/, 5];
+            case 9: return [3 /*break*/, 16];
+            case 10:
+                e_1_1 = _b.sent();
+                e_1 = { error: e_1_1 };
+                return [3 /*break*/, 16];
+            case 11:
+                _b.trys.push([11, , 14, 15]);
+                if (!(pagesHaveEvolutionSection_1_1 && !pagesHaveEvolutionSection_1_1.done && (_a = pagesHaveEvolutionSection_1["return"]))) return [3 /*break*/, 13];
+                return [4 /*yield*/, _a.call(pagesHaveEvolutionSection_1)];
+            case 12:
+                _b.sent();
+                _b.label = 13;
+            case 13: return [3 /*break*/, 15];
+            case 14:
+                if (e_1) throw e_1.error;
+                return [7 /*endfinally*/];
+            case 15: return [7 /*endfinally*/];
+            case 16:
                 console.log(titlesInOtherLang);
+                document.write("<table>" +
+                    ("<tr><td>en article in category " + input.split(":")[1] + " with title with \"" + word + "\"</td><td>" + otherLang + " article</td></tr>") +
+                    titlesInOtherLang.map(function (t) { return "<tr><td><a href=\"https://en.wikipedia.org/wiki/" + t[0] + "\">" + t[0] + "</a></td><td><a href=\"https://" + otherLang + ".wikipedia.org/wiki/" + t[1] + "\">" + (t[1] ? t[1] : "") + "</a></td></tr>"; }));
                 return [2 /*return*/];
         }
     });

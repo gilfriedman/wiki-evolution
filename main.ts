@@ -6,7 +6,7 @@ const BASE_URL = "https://en.wikipedia.org/w/api.php";
 
 // let input = "Category:Animals";
 let input = "Category:Animals";
-let depth = 1;
+let depth = 0;
 let word = "evolu";
 let otherLang = "he";
 
@@ -37,17 +37,23 @@ let otherLang = "he";
     console.log(pagesHaveEvolutionSection);
 
     const titlesInOtherLang = [];
-    const titleInOtherLanguagePromises = pagesHaveEvolutionSection.map(async page => {
-        let otherLAngTitle = await getTitleInOtherLanguage(page, otherLang);
-        otherLAngTitle && titlesInOtherLang.push(otherLAngTitle);
-    });
-    await Promise.all(titleInOtherLanguagePromises);
-    // for await (const page of pagesHaveEvolutionSection) {
-    //     debugger
+    // const titleInOtherLanguagePromises = pagesHaveEvolutionSection.map(async page => {
     //     let otherLAngTitle = await getTitleInOtherLanguage(page, otherLang);
     //     otherLAngTitle && titlesInOtherLang.push(otherLAngTitle);
-    // }
+    // });
+    // await Promise.all(titleInOtherLanguagePromises);
+    for await (const page of pagesHaveEvolutionSection) {
+        debugger
+        let otherLAngTitle = await getTitleInOtherLanguage(page, otherLang);
+        titlesInOtherLang.push([page, otherLAngTitle]);
+    }
     console.log(titlesInOtherLang)
+
+    document.write(
+        "<table>" +
+        `<tr><td>en article in category ${input.split(":")[1]} with title with "${word}"</td><td>${otherLang} article</td></tr>` +
+        titlesInOtherLang.map(t => `<tr><td><a href="https://en.wikipedia.org/wiki/${t[0]}">${t[0]}</a></td><td><a href="https://${otherLang}.wikipedia.org/wiki/${t[1]}">${t[1]?t[1]:""}</a></td></tr>`)
+    );
 })();
 
 /* API */
