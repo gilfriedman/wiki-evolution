@@ -5,27 +5,28 @@
 const BASE_URL = "https://en.wikipedia.org/w/api.php";
 
 // let input = "Category:Animals";
-let input = "Category:Long-distance_running";
-let word = "stor";
+let input = "Category:Animals";
+let depth = 1;
+let word = "evolu";
 let otherLang = "he";
 
 /* MAIN */
 
 (async () => {
     /* START getSubcatsByCatAndLevel */
-    const hi = await getSubcatsByCatAndLevel(input, 0);
+    const hi = await getSubcatsByCatAndLevel(input, depth);
     console.log(hi);
-    const set = new Set(hi.map(x => x.title));
-    console.log(set);
+    const cats = new Set(hi.map(x => x.title));
+    console.log(cats);
     /* END getSubcatsByCatAndLevel */
 
     /* START getAllPagesInCat */
+    //debugger
+
     let articles = [];
-    //debugger
-    for await (const cat of set) {
-        articles.push(...await getAllPagesInCat(cat));
-    }
-    //debugger
+    const pagesInCatsPromises = Array.from(cats).map(async cat => articles.push(...await getAllPagesInCat(cat)));
+    await Promise.all(pagesInCatsPromises);
+
     console.log(articles);
     const articlesSet = new Set(articles.map(x => x.title));
     const sorted = Array.from(articlesSet).sort();
@@ -36,28 +37,32 @@ let otherLang = "he";
     console.log(pagesHaveEvolutionSection);
 
     const titlesInOtherLang = [];
-    for await (const page of pagesHaveEvolutionSection) {
-        debugger
+    const titleInOtherLanguagePromises = pagesHaveEvolutionSection.map(async page => {
         let otherLAngTitle = await getTitleInOtherLanguage(page, otherLang);
         otherLAngTitle && titlesInOtherLang.push(otherLAngTitle);
-    }
-
+    });
+    await Promise.all(titleInOtherLanguagePromises);
+    // for await (const page of pagesHaveEvolutionSection) {
+    //     debugger
+    //     let otherLAngTitle = await getTitleInOtherLanguage(page, otherLang);
+    //     otherLAngTitle && titlesInOtherLang.push(otherLAngTitle);
+    // }
     console.log(titlesInOtherLang)
 })();
 
 /* API */
 async function getPagesHaveEvolutionSection(titles) {
     const pagesHaveEvolutionSection = [];
-    for await (const title of titles) {
+
+    const pagesHaveEvolutionSectionPromises = titles.map(async (title) => {
         const content = await getContentOfPage(title);
-        // const content = (<any>contentObj).query.pages[0].revisions[0].slots.main.content;
-        debugger
         const regex = new RegExp("==(.{0,30}" + word + ".{0,30})==", 'gi');
         if (content && content.match(regex) != null) {
-            debugger
             pagesHaveEvolutionSection.push(title)
         }
-    }
+    });
+
+    await Promise.all(pagesHaveEvolutionSectionPromises);
     return pagesHaveEvolutionSection;
 }
 
@@ -65,10 +70,12 @@ async function getSubcatsByCatAndLevel(catName, level) {
     let subcats = await getAllSubcats(catName);
     if (level > 0) {
         level--;
-        for await (let subcat of subcats) {
+
+        const subcatsByCatAndLevelPromises = subcats.map(async subcat => {
             let results = await getSubcatsByCatAndLevel(subcat.title, level);
             subcats = [...subcats, ...results];
-        }
+        })
+        await Promise.all(subcatsByCatAndLevelPromises);
     }
     return subcats;
 }
@@ -137,7 +144,6 @@ async function getList(params: IParams): Promise<any[]> {
     result.push(...json.query[params.list]);
 
     if (json.continue) {
-        debugger
         const continueKey = Object.keys(json.continue).find(key => key != "continue");
         const newParams = { ...params };
         newParams[continueKey] = json.continue[continueKey];
