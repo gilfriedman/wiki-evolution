@@ -75,8 +75,10 @@ async function getPagesHaveWordInSectionTitle(titles, word) {
 }
 
 async function getSubcatsByCatAndLevel(catName, level) {
+    if (level == 0) return [];
+
     let subcats = await getAllSubcats(catName);
-    if (level > 0) {
+    if (level > 1) {
         level--;
 
         const subcatsByCatAndLevelPromises = subcats.map(async subcat => {

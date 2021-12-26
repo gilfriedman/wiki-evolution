@@ -217,10 +217,13 @@ function getSubcatsByCatAndLevel(catName, level) {
         var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, getAllSubcats(catName)];
+                case 0:
+                    if (level == 0)
+                        return [2 /*return*/, []];
+                    return [4 /*yield*/, getAllSubcats(catName)];
                 case 1:
                     subcats = _a.sent();
-                    if (!(level > 0)) return [3 /*break*/, 3];
+                    if (!(level > 1)) return [3 /*break*/, 3];
                     level--;
                     subcatsByCatAndLevelPromises = subcats.map(function (subcat) { return __awaiter(_this, void 0, void 0, function () {
                         var results;
