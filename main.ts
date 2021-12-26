@@ -1,74 +1,76 @@
-// const queryString = window.location.search;
-// const urlParams = new URLSearchParams(queryString);
-// const input = urlParams.get('input');
-
 const BASE_URL = "https://en.wikipedia.org/w/api.php";
-
-// let input = "Category:Animals";
-let input = "Category:Animals";
-let depth = 0;
-let word = "evolu";
-let otherLang = "he";
 
 /* MAIN */
 
 (async () => {
-    /* START getSubcatsByCatAndLevel */
-    const hi = await getSubcatsByCatAndLevel(input, depth);
-    console.log(hi);
-    const cats = new Set(hi.map(x => x.title));
-    console.log(cats);
-    /* END getSubcatsByCatAndLevel */
+    const {cat: categoryFullName, dep: depth, word, lang: otherLang} = getHashParams();
 
-    /* START getAllPagesInCat */
-    //debugger
+    console.log(`started at ${(new Date()).toLocaleString()}`);
+    console.time("timer");
+
+    const catsInfo = await getSubcatsByCatAndLevel(categoryFullName, depth);
+    const cats = new Set([...catsInfo.map(cat => cat.title), categoryFullName]);
+    console.log(`finished getSubcatsByCatAndLevel: ${cats.size} cats`);
+    console.timeLog("timer");
 
     let articles = [];
     const pagesInCatsPromises = Array.from(cats).map(async cat => articles.push(...await getAllPagesInCat(cat)));
     await Promise.all(pagesInCatsPromises);
-
-    console.log(articles);
     const articlesSet = new Set(articles.map(x => x.title));
     const sorted = Array.from(articlesSet).sort();
-    console.log(sorted);
-    /* END getAllPagesInCat */
 
-    const pagesHaveEvolutionSection = await getPagesHaveEvolutionSection(sorted);
-    console.log(pagesHaveEvolutionSection);
+    console.log(`finished getAllPagesInCat: ${sorted.length} articles`);
+    console.timeLog("timer");
 
+    let pagesHaveEvolutionSection = [];
+    if (word) {
+        pagesHaveEvolutionSection = await getPagesHaveWordInSectionTitle(sorted, word);
+        console.log(`finished getPagesHaveWordInSectionTitle: ${pagesHaveEvolutionSection.length} articles`);
+        console.timeLog("timer");
+    }
+
+    const pages = pagesHaveEvolutionSection.length ? pagesHaveEvolutionSection : sorted;
     const titlesInOtherLang = [];
-    // const titleInOtherLanguagePromises = pagesHaveEvolutionSection.map(async page => {
-    //     let otherLAngTitle = await getTitleInOtherLanguage(page, otherLang);
-    //     otherLAngTitle && titlesInOtherLang.push(otherLAngTitle);
-    // });
-    // await Promise.all(titleInOtherLanguagePromises);
-    for await (const page of pagesHaveEvolutionSection) {
-        debugger
+
+    for await (const page of pages) {
         let otherLAngTitle = await getTitleInOtherLanguage(page, otherLang);
         titlesInOtherLang.push([page, otherLAngTitle]);
     }
-    console.log(titlesInOtherLang)
+    console.log(`finished getTitleInOtherLanguage: ${titlesInOtherLang.filter(t=>!!t[1]).length} articles`);
+    console.timeLog("timer");
 
     document.write(
         "<table>" +
-        `<tr><td>en article in category ${input.split(":")[1]} with title with "${word}"</td><td>${otherLang} article</td></tr>` +
-        titlesInOtherLang.map(t => `<tr><td><a href="https://en.wikipedia.org/wiki/${t[0]}">${t[0]}</a></td><td><a href="https://${otherLang}.wikipedia.org/wiki/${t[1]}">${t[1]?t[1]:""}</a></td></tr>`)
+        `<tr><td>en article in category ${categoryFullName.split(":")[1]} with title with "${word}"</td><td>${otherLang} article</td></tr>` +
+        titlesInOtherLang.map(t => `<tr><td><a href="https://en.wikipedia.org/wiki/${t[0]}">${t[0]}</a></td><td><a href="https://${otherLang}.wikipedia.org/wiki/${t[1]}">${t[1] ? t[1] : ""}</a></td></tr>`)
     );
+
+    console.timeEnd("timer");
+    console.log(`ended at ${(new Date()).toLocaleString()}`);
 })();
 
-/* API */
-async function getPagesHaveEvolutionSection(titles) {
-    const pagesHaveEvolutionSection = [];
+/* Helpers */
+function getHashParams(): UrlHashParams {
+    const hash = window.location.hash.substr(1);
 
-    const pagesHaveEvolutionSectionPromises = titles.map(async (title) => {
+    return hash.split('&').reduce(function (res, item) {
+        var parts = item.split('=');
+        res[parts[0]] = parts[1];
+        return res;
+    }, {}) as UrlHashParams;
+}
+
+/* API */
+async function getPagesHaveWordInSectionTitle(titles, word) {
+    const pagesHaveEvolutionSection = [];
+    const regex = new RegExp("==(.{0,30}" + word + ".{0,30})==", 'gi');
+
+    for await (const title of titles) {
         const content = await getContentOfPage(title);
-        const regex = new RegExp("==(.{0,30}" + word + ".{0,30})==", 'gi');
-        if (content && content.match(regex) != null) {
+        if (!word || (content && content.match(regex) != null)) {
             pagesHaveEvolutionSection.push(title)
         }
-    });
-
-    await Promise.all(pagesHaveEvolutionSectionPromises);
+    }
     return pagesHaveEvolutionSection;
 }
 
@@ -194,4 +196,11 @@ interface IRVParams extends IParams {
     rvslots: string;
     rvprop: string;
     formatversion: string;
+}
+
+interface UrlHashParams {
+    cat: string,
+    dep: string,
+    word: string,
+    lang: string,
 }

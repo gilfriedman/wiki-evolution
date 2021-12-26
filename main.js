@@ -1,6 +1,3 @@
-// const queryString = window.location.search;
-// const urlParams = new URLSearchParams(queryString);
-// const input = urlParams.get('input');
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -66,24 +63,23 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 var _this = this;
 var BASE_URL = "https://en.wikipedia.org/w/api.php";
-// let input = "Category:Animals";
-var input = "Category:Animals";
-var depth = 0;
-var word = "evolu";
-var otherLang = "he";
 /* MAIN */
 (function () { return __awaiter(_this, void 0, void 0, function () {
-    var hi, cats, articles, pagesInCatsPromises, articlesSet, sorted, pagesHaveEvolutionSection, titlesInOtherLang, pagesHaveEvolutionSection_1, pagesHaveEvolutionSection_1_1, page, otherLAngTitle, e_1_1;
+    var _a, categoryFullName, depth, word, otherLang, catsInfo, cats, articles, pagesInCatsPromises, articlesSet, sorted, pagesHaveEvolutionSection, pages, titlesInOtherLang, pages_1, pages_1_1, page, otherLAngTitle, e_1_1;
     var _this = this;
-    var e_1, _a;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
-            case 0: return [4 /*yield*/, getSubcatsByCatAndLevel(input, depth)];
+    var e_1, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                _a = getHashParams(), categoryFullName = _a.cat, depth = _a.dep, word = _a.word, otherLang = _a.lang;
+                console.log("started at ".concat((new Date()).toLocaleString()));
+                console.time("timer");
+                return [4 /*yield*/, getSubcatsByCatAndLevel(categoryFullName, depth)];
             case 1:
-                hi = _b.sent();
-                console.log(hi);
-                cats = new Set(hi.map(function (x) { return x.title; }));
-                console.log(cats);
+                catsInfo = _c.sent();
+                cats = new Set(__spreadArray(__spreadArray([], catsInfo.map(function (cat) { return cat.title; }), true), [categoryFullName], false));
+                console.log("finished getSubcatsByCatAndLevel: ".concat(cats.size, " cats"));
+                console.timeLog("timer");
                 articles = [];
                 pagesInCatsPromises = Array.from(cats).map(function (cat) { return __awaiter(_this, void 0, void 0, function () { var _a, _b, _c; return __generator(this, function (_d) {
                     switch (_d.label) {
@@ -96,86 +92,121 @@ var otherLang = "he";
                 }); }); });
                 return [4 /*yield*/, Promise.all(pagesInCatsPromises)];
             case 2:
-                _b.sent();
-                console.log(articles);
+                _c.sent();
                 articlesSet = new Set(articles.map(function (x) { return x.title; }));
                 sorted = Array.from(articlesSet).sort();
-                console.log(sorted);
-                return [4 /*yield*/, getPagesHaveEvolutionSection(sorted)];
+                console.log("finished getAllPagesInCat: ".concat(sorted.length, " articles"));
+                console.timeLog("timer");
+                pagesHaveEvolutionSection = [];
+                if (!word) return [3 /*break*/, 4];
+                return [4 /*yield*/, getPagesHaveWordInSectionTitle(sorted, word)];
             case 3:
-                pagesHaveEvolutionSection = _b.sent();
-                console.log(pagesHaveEvolutionSection);
-                titlesInOtherLang = [];
-                _b.label = 4;
+                pagesHaveEvolutionSection = _c.sent();
+                console.log("finished getPagesHaveWordInSectionTitle: ".concat(pagesHaveEvolutionSection.length, " articles"));
+                console.timeLog("timer");
+                _c.label = 4;
             case 4:
-                _b.trys.push([4, 10, 11, 16]);
-                pagesHaveEvolutionSection_1 = __asyncValues(pagesHaveEvolutionSection);
-                _b.label = 5;
-            case 5: return [4 /*yield*/, pagesHaveEvolutionSection_1.next()];
-            case 6:
-                if (!(pagesHaveEvolutionSection_1_1 = _b.sent(), !pagesHaveEvolutionSection_1_1.done)) return [3 /*break*/, 9];
-                page = pagesHaveEvolutionSection_1_1.value;
-                debugger;
-                return [4 /*yield*/, getTitleInOtherLanguage(page, otherLang)];
+                pages = pagesHaveEvolutionSection.length ? pagesHaveEvolutionSection : sorted;
+                titlesInOtherLang = [];
+                _c.label = 5;
+            case 5:
+                _c.trys.push([5, 11, 12, 17]);
+                pages_1 = __asyncValues(pages);
+                _c.label = 6;
+            case 6: return [4 /*yield*/, pages_1.next()];
             case 7:
-                otherLAngTitle = _b.sent();
+                if (!(pages_1_1 = _c.sent(), !pages_1_1.done)) return [3 /*break*/, 10];
+                page = pages_1_1.value;
+                return [4 /*yield*/, getTitleInOtherLanguage(page, otherLang)];
+            case 8:
+                otherLAngTitle = _c.sent();
                 titlesInOtherLang.push([page, otherLAngTitle]);
-                _b.label = 8;
-            case 8: return [3 /*break*/, 5];
-            case 9: return [3 /*break*/, 16];
-            case 10:
-                e_1_1 = _b.sent();
-                e_1 = { error: e_1_1 };
-                return [3 /*break*/, 16];
+                _c.label = 9;
+            case 9: return [3 /*break*/, 6];
+            case 10: return [3 /*break*/, 17];
             case 11:
-                _b.trys.push([11, , 14, 15]);
-                if (!(pagesHaveEvolutionSection_1_1 && !pagesHaveEvolutionSection_1_1.done && (_a = pagesHaveEvolutionSection_1["return"]))) return [3 /*break*/, 13];
-                return [4 /*yield*/, _a.call(pagesHaveEvolutionSection_1)];
+                e_1_1 = _c.sent();
+                e_1 = { error: e_1_1 };
+                return [3 /*break*/, 17];
             case 12:
-                _b.sent();
-                _b.label = 13;
-            case 13: return [3 /*break*/, 15];
-            case 14:
+                _c.trys.push([12, , 15, 16]);
+                if (!(pages_1_1 && !pages_1_1.done && (_b = pages_1["return"]))) return [3 /*break*/, 14];
+                return [4 /*yield*/, _b.call(pages_1)];
+            case 13:
+                _c.sent();
+                _c.label = 14;
+            case 14: return [3 /*break*/, 16];
+            case 15:
                 if (e_1) throw e_1.error;
                 return [7 /*endfinally*/];
-            case 15: return [7 /*endfinally*/];
-            case 16:
-                console.log(titlesInOtherLang);
+            case 16: return [7 /*endfinally*/];
+            case 17:
+                console.log("finished getTitleInOtherLanguage: ".concat(titlesInOtherLang.filter(function (t) { return !!t[1]; }).length, " articles"));
+                console.timeLog("timer");
                 document.write("<table>" +
-                    ("<tr><td>en article in category " + input.split(":")[1] + " with title with \"" + word + "\"</td><td>" + otherLang + " article</td></tr>") +
-                    titlesInOtherLang.map(function (t) { return "<tr><td><a href=\"https://en.wikipedia.org/wiki/" + t[0] + "\">" + t[0] + "</a></td><td><a href=\"https://" + otherLang + ".wikipedia.org/wiki/" + t[1] + "\">" + (t[1] ? t[1] : "") + "</a></td></tr>"; }));
+                    "<tr><td>en article in category ".concat(categoryFullName.split(":")[1], " with title with \"").concat(word, "\"</td><td>").concat(otherLang, " article</td></tr>") +
+                    titlesInOtherLang.map(function (t) { return "<tr><td><a href=\"https://en.wikipedia.org/wiki/".concat(t[0], "\">").concat(t[0], "</a></td><td><a href=\"https://").concat(otherLang, ".wikipedia.org/wiki/").concat(t[1], "\">").concat(t[1] ? t[1] : "", "</a></td></tr>"); }));
+                console.timeEnd("timer");
+                console.log("ended at ".concat((new Date()).toLocaleString()));
                 return [2 /*return*/];
         }
     });
 }); })();
+/* Helpers */
+function getHashParams() {
+    var hash = window.location.hash.substr(1);
+    return hash.split('&').reduce(function (res, item) {
+        var parts = item.split('=');
+        res[parts[0]] = parts[1];
+        return res;
+    }, {});
+}
 /* API */
-function getPagesHaveEvolutionSection(titles) {
+function getPagesHaveWordInSectionTitle(titles, word) {
+    var titles_1, titles_1_1;
+    var e_2, _a;
     return __awaiter(this, void 0, void 0, function () {
-        var pagesHaveEvolutionSection, pagesHaveEvolutionSectionPromises;
-        var _this = this;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var pagesHaveEvolutionSection, regex, title, content, e_2_1;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
                     pagesHaveEvolutionSection = [];
-                    pagesHaveEvolutionSectionPromises = titles.map(function (title) { return __awaiter(_this, void 0, void 0, function () {
-                        var content, regex;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0: return [4 /*yield*/, getContentOfPage(title)];
-                                case 1:
-                                    content = _a.sent();
-                                    regex = new RegExp("==(.{0,30}" + word + ".{0,30})==", 'gi');
-                                    if (content && content.match(regex) != null) {
-                                        pagesHaveEvolutionSection.push(title);
-                                    }
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); });
-                    return [4 /*yield*/, Promise.all(pagesHaveEvolutionSectionPromises)];
+                    regex = new RegExp("==(.{0,30}" + word + ".{0,30})==", 'gi');
+                    _b.label = 1;
                 case 1:
-                    _a.sent();
-                    return [2 /*return*/, pagesHaveEvolutionSection];
+                    _b.trys.push([1, 7, 8, 13]);
+                    titles_1 = __asyncValues(titles);
+                    _b.label = 2;
+                case 2: return [4 /*yield*/, titles_1.next()];
+                case 3:
+                    if (!(titles_1_1 = _b.sent(), !titles_1_1.done)) return [3 /*break*/, 6];
+                    title = titles_1_1.value;
+                    return [4 /*yield*/, getContentOfPage(title)];
+                case 4:
+                    content = _b.sent();
+                    if (!word || (content && content.match(regex) != null)) {
+                        pagesHaveEvolutionSection.push(title);
+                    }
+                    _b.label = 5;
+                case 5: return [3 /*break*/, 2];
+                case 6: return [3 /*break*/, 13];
+                case 7:
+                    e_2_1 = _b.sent();
+                    e_2 = { error: e_2_1 };
+                    return [3 /*break*/, 13];
+                case 8:
+                    _b.trys.push([8, , 11, 12]);
+                    if (!(titles_1_1 && !titles_1_1.done && (_a = titles_1["return"]))) return [3 /*break*/, 10];
+                    return [4 /*yield*/, _a.call(titles_1)];
+                case 9:
+                    _b.sent();
+                    _b.label = 10;
+                case 10: return [3 /*break*/, 12];
+                case 11:
+                    if (e_2) throw e_2.error;
+                    return [7 /*endfinally*/];
+                case 12: return [7 /*endfinally*/];
+                case 13: return [2 /*return*/, pagesHaveEvolutionSection];
             }
         });
     });
@@ -219,7 +250,7 @@ function getTitleInOtherLanguage(title, lang) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    url = "https://en.wikipedia.org/w/api.php?origin=*&action=query&titles=" + title + "&prop=langlinks&format=json&lllang=" + lang + "&lllimit=500";
+                    url = "https://en.wikipedia.org/w/api.php?origin=*&action=query&titles=".concat(title, "&prop=langlinks&format=json&lllang=").concat(lang, "&lllimit=500");
                     return [4 /*yield*/, fetch(url)];
                 case 1:
                     response = _a.sent();
