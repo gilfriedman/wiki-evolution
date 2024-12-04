@@ -93,7 +93,7 @@ async function getSubcatsByCatAndLevel(catName, level) {
 /* LOW LEVEL (using get) */
 
 async function getTitleInOtherLanguage(title: string, lang: string): Promise<string> {
-    const url = `https://en.wikipedia.org/w/api.php?origin=*&action=query&titles=${title}&prop=langlinks&format=json&lllang=${lang}&lllimit=500`;
+    const url = `https://en.wikipedia.org/w/api.php?origin=*&action=query&titles=${title}&prop=langlinks|pageviews&format=json&lllang=${lang}&lllimit=500`;
     const response = await fetch(url);
     const json = await response.json();
     const langLinks = (<any>json).query.pages[Object.keys((<any>json).query.pages)[0]].langlinks;
