@@ -253,7 +253,7 @@ function getTitleInOtherLanguage(title, lang) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    url = "https://en.wikipedia.org/w/api.php?origin=*&action=query&titles=".concat(title, "&prop=langlinks&format=json&lllang=").concat(lang, "&lllimit=500");
+                    url = "https://en.wikipedia.org/w/api.php?origin=*&action=query&titles=".concat(title, "&prop=langlinks|pageviews&format=json&lllang=").concat(lang, "&lllimit=500");
                     return [4 /*yield*/, fetch(url)];
                 case 1:
                     response = _a.sent();
