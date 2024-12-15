@@ -260,7 +260,7 @@ function getTitleInOtherLanguage(title, lang) {
                     return [4 /*yield*/, response.json()];
                 case 2:
                     json = _a.sent();
-                    langLinks = json.query.pages[Object.keys(json.query.pages)[0]].langlinks;
+                    langLinks = json.query?.pages[Object.keys(json.query?.pages)[0]].langlinks;
                     targetTitle = langLinks && langLinks[0][Object.keys(langLinks[0])[1]];
                     return [2 /*return*/, targetTitle];
             }
