@@ -96,7 +96,7 @@ async function getTitleInOtherLanguage(title: string, lang: string): Promise<str
     const url = `https://en.wikipedia.org/w/api.php?origin=*&action=query&titles=${title}&prop=langlinks|pageviews&format=json&lllang=${lang}&lllimit=500`;
     const response = await fetch(url);
     const json = await response.json();
-    const langLinks = (<any>json).query.pages[Object.keys((<any>json).query.pages)[0]].langlinks;
+    const langLinks = (<any>json)?.query.pages[Object.keys((<any>json)?.query.pages)[0]].langlinks;
     const targetTitle: string = langLinks && langLinks[0][Object.keys(langLinks[0])[1]];
     return targetTitle;
 }
@@ -172,7 +172,7 @@ async function getContent(params: IParams): Promise<string> {
     const json = await resp.json();
 
     if (!json.warnings) {
-        return (<any>json).query?.pages[0]?.revisions[0]?.slots?.main?.content;
+        return (<any>json)?.query?.pages[0]?.revisions[0]?.slots?.main?.content;
     } else return null
 }
 
